@@ -1,6 +1,6 @@
 use crate::components::parser::token::TokenType;
 
-use super::operations::{ConstOp, Func};
+use super::operations::Func;
 use super::parser::{ParseError, Parser};
 use super::token::Token;
 use std::fmt::{self, Debug};
@@ -42,7 +42,6 @@ impl Ast {
     }
 
     pub fn emit(&mut self, parser: Parser, list: bool) -> Result<(), ParseError> {
-        use TokenType::*;
         self.tokens = parser.parsed;
 
         let mut expressions = Vec::new();
@@ -72,13 +71,15 @@ impl Ast {
     }
 
     // Assumes that:
-    //  - self.cursor - self.peek will be valid
+    //  - (self.cursor - self.peek) will be a valid index in self.tokens
     //  - you actually checked all values return Some(_) before calling
-    unsafe fn next_to_peek(&mut self) -> Vec<Token> {
+    // Pushes all tokens up to one before self.peek
+    unsafe fn next_to_peek(&mut self) -> Vec<&Token> {
         let mut tokens = Vec::new();
         while (self.cursor - self.peek) > 1 {
             tokens.push(self.next().unwrap());
         }
+        self.peek = 0;
         tokens
     }
 }
