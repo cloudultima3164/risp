@@ -1,11 +1,12 @@
-use super::Expression::{self, *};
+use super::ast::Expression::{self, *};
 
 pub type ConstOp = (&'static str, &'static dyn Function<Expression>);
-
-pub const ADD: ConstOp = ("add", &add);
-pub const SUBTRACT: ConstOp = ("subtract", &subtract);
-pub const MULTIPLY: ConstOp = ("multiply", &multiply);
-pub const DIVIDE: ConstOp = ("divide", &divide);
+pub struct Func {
+    pub name: &'static str,
+    func: &'static dyn Function<Expression>,
+    pub left: Expression,
+    pub right: Expression,
+}
 
 pub enum EvalError {
     TypeMismatch,
@@ -59,3 +60,8 @@ simple_math!(add, +);
 simple_math!(subtract, -);
 simple_math!(multiply, *);
 simple_math!(divide, /);
+
+pub const ADD: ConstOp = ("add", &add);
+pub const SUBTRACT: ConstOp = ("subtract", &subtract);
+pub const MULTIPLY: ConstOp = ("multiply", &multiply);
+pub const DIVIDE: ConstOp = ("divide", &divide);

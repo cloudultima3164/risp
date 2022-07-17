@@ -2,9 +2,9 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    inner: TokenType,
-    row: isize,
-    column: isize,
+    pub inner: TokenType,
+    pub row: isize,
+    pub column: isize,
 }
 
 impl Token {
