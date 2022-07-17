@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::parser::ast::Expression;
+use super::interpreter::ast::Expression;
 
 #[derive(Debug, Default)]
 pub struct Environment {

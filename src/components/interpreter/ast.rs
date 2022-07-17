@@ -26,7 +26,7 @@ impl Debug for Expression {
 
 #[derive(Debug, Default)]
 pub struct Ast {
-    inner: Box<[Expression]>,
+    pub inner: Box<[Expression]>,
     tokens: Box<[Token]>,
     cursor: usize,
     peek: usize,
@@ -36,18 +36,19 @@ impl Ast {
         Ast::default()
     }
 
-    pub fn emit(&mut self, parser: Parser, list: bool) -> Result<(), ParseError> {
+    pub fn build(&mut self, parser: Parser) -> Result<(), ParseError> {
         self.tokens = parser.parsed;
 
         let mut expressions = Vec::new();
         expressions.reserve(1 << 8);
-        while let Some(token) = self.next().map(|token| token.clone()) {
+        while let Some(token) = self.next().cloned() {
             if expressions.capacity() == 0 {
                 expressions.reserve(1 << 8);
             }
             let expression = self.match_grammar(&token)?;
             expressions.push(expression);
         }
+        self.inner = expressions.into_boxed_slice();
         Ok(())
     }
 

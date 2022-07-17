@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 #[derive(Debug, Clone)]
 pub struct Token {
     pub inner: TokenType,
@@ -15,11 +17,37 @@ pub enum TokenError<'a> {
     Unexpected(&'a Token),
 }
 
+impl<'a> Display for TokenError<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        use TokenError::*;
+        let fmt = match self {
+            Unexpected(token) => format!(
+                "Unexpected token {} [{}, {}]",
+                token.inner.as_ref(),
+                &token.row,
+                &token.column
+            ),
+        };
+        write!(f, "{}", fmt)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum TokenType {
     Ident(Box<str>),
     Symbol(Symbol),
-    Unexpected(char),
+    Unexpected(Box<str>),
+}
+
+impl AsRef<str> for TokenType {
+    fn as_ref(&self) -> &str {
+        use TokenType::*;
+        match self {
+            Ident(s) => s.as_ref(),
+            Symbol(sym) => sym.as_ref(),
+            Unexpected(c) => c.as_ref(),
+        }
+    }
 }
 
 macro_rules! symbol_enum_with_asref_repr {
@@ -50,7 +78,7 @@ symbol_enum_with_asref_repr! {
     DoubleQuote: r#"""#,
     NewLine: "\n",
     CarriageReturn: "\r",
-    WhiteSpace: " "
+    WhiteSpace: " " // This requires a special check.
 }
 
 impl PartialEq<str> for Symbol {

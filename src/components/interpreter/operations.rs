@@ -1,4 +1,9 @@
 use super::ast::Expression::{self, *};
+use strum::AsRefStr;
+
+#[allow(unused_imports)]
+use std::convert::AsRef;
+use std::fmt::{Display, Formatter};
 
 pub struct Func {
     pub name: &'static str,
@@ -20,9 +25,18 @@ impl Func {
     }
 }
 
+#[derive(Debug, AsRefStr, PartialEq, Clone, Copy)]
 pub enum EvalError {
+    #[strum(serialize = "Cannot evaluate differently typed expressions")]
     TypeMismatch,
+    #[strum(serialize = "Cannot evaluate idents")]
     IdentOp,
+}
+
+impl Display for EvalError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
 }
 
 pub trait Function<T> {

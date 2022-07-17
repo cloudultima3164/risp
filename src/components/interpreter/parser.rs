@@ -1,7 +1,22 @@
-use super::token::{Symbol, Token, TokenType};
+#[allow(unused_imports)]
+use std::convert::AsRef;
+use std::fmt::{Display, Formatter};
 
+use super::token::{Symbol, Token, TokenType};
+use strum::AsRefStr;
+
+use super::ast::Ast;
+
+#[derive(Debug, AsRefStr, PartialEq, Clone, Copy)]
 pub enum ParseError {
+    #[strum(serialize = "Unexpected EOF while parsing input")]
     UnexpectedEof,
+}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
 }
 
 #[derive(Debug, Default)]
@@ -50,6 +65,12 @@ impl Parser {
                     self.row += 1;
                 }
                 result
+            }
+            // There is a good chance that whitespace won't match based on current conditions,
+            //  so we should double check.
+            Err(char) if char.is_whitespace() => {
+                let tt = TokenType::Symbol(Symbol::WhiteSpace);
+                Ok(Token::new(tt, self.row, self.column))
             }
             Err(char) => {
                 let mut ident = String::from(char);
