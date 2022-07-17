@@ -1,6 +1,5 @@
-use self::{ast::Expression, env::Environment};
+use self::env::Environment;
 
-mod ast;
 mod env;
 mod error;
 mod parser;
@@ -22,17 +21,4 @@ impl<'a> VirtualMachine<'a> {
     }
 
     pub fn run() {}
-
-    // fn parse(&self) -> Expression {
-    //     let tokens = self.tokenize();
-    // }
-
-    fn tokenize(&'a self) -> Box<[Box<str>]> {
-        self.current_scope
-            .replace('(', " ( ")
-            .replace(')', " ) ")
-            .split_whitespace()
-            .map(|s| s.to_string().into_boxed_str())
-            .collect()
-    }
 }

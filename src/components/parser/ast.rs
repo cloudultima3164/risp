@@ -1,5 +1,3 @@
-use crate::components::parser::token::TokenType;
-
 use super::operations::Func;
 use super::parser::{ParseError, Parser};
 use super::token::Token;
@@ -20,10 +18,7 @@ impl Debug for Expression {
             Ident(s) => format!("{s:#?}"),
             Number(f) => format!("{f:#?}"),
             List(vec) => format!("{vec:#?}"),
-            Op(func) => format!(
-                "Risp function object: {}({:#?}, {:#?})",
-                func.name, func.right, func.left
-            ),
+            Op(func) => format!("Risp function object: {}", func.name),
         };
         write!(f, "{fmt}")
     }
@@ -46,11 +41,12 @@ impl Ast {
 
         let mut expressions = Vec::new();
         expressions.reserve(1 << 8);
-        while let Some(token) = self.next() {
+        while let Some(token) = self.next().map(|token| token.clone()) {
             if expressions.capacity() == 0 {
                 expressions.reserve(1 << 8);
             }
-            expressions.push(self.match_grammar(token)?);
+            let expression = self.match_grammar(&token)?;
+            expressions.push(expression);
         }
         Ok(())
     }
@@ -74,10 +70,11 @@ impl Ast {
     //  - (self.cursor - self.peek) will be a valid index in self.tokens
     //  - you actually checked all values return Some(_) before calling
     // Pushes all tokens up to one before self.peek
-    unsafe fn next_to_peek(&mut self) -> Vec<&Token> {
+    unsafe fn next_to_peek(&mut self) -> Vec<Token> {
         let mut tokens = Vec::new();
-        while (self.cursor - self.peek) > 1 {
-            tokens.push(self.next().unwrap());
+        for _ in 0..self.peek {
+            let token = self.next().map(|token| token.clone()).unwrap();
+            tokens.push(token);
         }
         self.peek = 0;
         tokens

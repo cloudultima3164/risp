@@ -3,8 +3,6 @@ use super::ast::Expression::{self, *};
 pub struct Func {
     pub name: &'static str,
     func: &'static dyn Function<Expression>,
-    pub lhs: Option<Expression>,
-    pub rhs: Option<Expression>,
 }
 
 pub const ADD: Func = Func::new("add", &add);
@@ -14,27 +12,11 @@ pub const DIVIDE: Func = Func::new("divide", &divide);
 
 impl Func {
     pub const fn new(name: &'static str, func: &'static dyn Function<Expression>) -> Self {
-        Func {
-            name,
-            func,
-            lhs: None,
-            rhs: None,
-        }
+        Func { name, func }
     }
 
-    pub const fn eval_with_args(
-        &self,
-        lhs: Expression,
-        rhs: Expression,
-    ) -> Result<Expression, EvalError> {
-        self.lhs = Some(lhs);
-        self.rhs = Some(rhs);
-        unsafe { self.eval() }
-    }
-
-    // Assumes that self.lhs and self.rhs are Some
-    const unsafe fn eval(&self) -> Result<Expression, EvalError> {
-        (self.func).evaluate(&self.lhs.unwrap(), &self.rhs.unwrap())
+    pub fn eval(&self, lhs: Expression, rhs: Expression) -> Result<Expression, EvalError> {
+        (self.func).evaluate(&lhs, &rhs)
     }
 }
 

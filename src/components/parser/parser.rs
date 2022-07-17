@@ -1,7 +1,4 @@
-use super::{
-    ast::Expression,
-    token::{Symbol, Token, TokenType},
-};
+use super::token::{Symbol, Token, TokenType};
 
 pub enum ParseError {
     UnexpectedEof,
